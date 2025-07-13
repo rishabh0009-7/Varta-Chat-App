@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { UserButton, useUser, SignInButton, SignUpButton } from "@clerk/nextjs";
+import { motion } from "framer-motion";
 
 export default function HomePage() {
   const { user } = useUser();
@@ -10,9 +11,14 @@ export default function HomePage() {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800">
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 w-full max-w-md border border-white/20 flex flex-col items-center">
+      <motion.div
+        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 w-full max-w-md border border-white/20 flex flex-col items-center"
+      >
         <h1 className="text-4xl font-extrabold mb-4 text-white drop-shadow-[0_0_10px_rgba(0,255,255,0.7)]">
-          Varta
+          Varta Chat App
         </h1>
         <p className="text-lg text-gray-300 mb-8 text-center">
           Join a room or create your own to start chatting in real time!
@@ -54,7 +60,7 @@ export default function HomePage() {
             </div>
           </>
         )}
-      </div>
+      </motion.div>
     </main>
   );
 }
