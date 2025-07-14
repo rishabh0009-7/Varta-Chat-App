@@ -3,20 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  
-  
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    
+    "lint": "next lint"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.24.0",
     "@prisma/client": "^6.11.1",
     "framer-motion": "^12.23.3",
     "next": "15.3.5",
+    "prisma": "^6.11.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "ws": "^8.18.3"
