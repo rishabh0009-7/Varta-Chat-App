@@ -1,0 +1,6 @@
+# Ignore generated JavaScript files from language stats
+prisma/generated/* linguist-vendored
+
+# Treat all .ts and .tsx files as TypeScript
+*.ts linguist-language=TypeScript
+*.tsx linguist-language=TypeScript
