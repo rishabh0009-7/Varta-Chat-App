@@ -1,8 +1,9 @@
 # Ignore generated files in stats
-prisma/generated/* linguist-vendored
+prisma/migrations/generated/* linguist-generated
 node_modules/* linguist-vendored
-dist/* linguist-vendored
-build/* linguist-vendored
+dist/* linguist-generated
+build/* linguist-generated
+.next/* linguist-generated
 
 # Explicitly mark TypeScript
 *.ts linguist-language=TypeScript
