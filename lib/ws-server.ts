@@ -1,6 +1,15 @@
 import { WebSocketServer, WebSocket } from "ws";
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient()
 const wss = new WebSocketServer({ port: 3001 });
+
+
+type ClientInfo = {
+  
+
+}
+
 
 wss.on("connection", (ws: WebSocket) => {
   ws.on("message", (message: string) => {
