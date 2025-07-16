@@ -1,25 +1,59 @@
-import { WebSocketServer, WebSocket } from "ws";
+import {WebSocket , WebSocketServer} from "ws";
 import { PrismaClient } from "@prisma/client";
 
+
 const prisma = new PrismaClient()
-const wss = new WebSocketServer({ port: 3001 });
+const wss  = new WebSocketServer()
 
-
-type ClientInfo = {
-  
+type clientInfo = {
+  ws:WebSocket,
+  userId:string,
+  room :string
 
 }
 
+const clients : clientInfo[] = []
 
-wss.on("connection", (ws: WebSocket) => {
-  ws.on("message", (message: string) => {
-    // Broadcast to all connected clients
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(message);
+wss.on("connected", (ws)=>{
+  let currentUser = clientInfo | null=null;
+  ws.on("message ",  async(data )=>{
+    try {
+      const msg = JSON.parse(data.toString())
+      // joining a room 
+      if(msg == "join"){
+        currentUser = {ws, userId:msg.userId , room :msg.room} 
+        clients.push(currentUser)
       }
-    });
-  });
-});
 
-console.log("WebSocket server running on ws://localhost:3001");
+
+      // send chat history (prev message to user )
+      const messages = await prisma.message.findMany ({
+        where :{room:{code:msg.room}},
+        orderBy:{createdAt: "asc"},
+        inlcude:{user:true}
+
+
+      })
+// sndin
+      ws.send(JSON.stringify({type :"history",messages}))
+
+
+      
+
+
+
+
+
+      
+    } catch (error) {
+      
+    }
+
+  })
+
+})
+
+
+
+
+
