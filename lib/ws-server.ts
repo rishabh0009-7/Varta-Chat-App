@@ -1,5 +1,6 @@
 import {WebSocket , WebSocketServer} from "ws";
 import { PrismaClient } from "@prisma/client";
+import { matchesGlob } from "path";
 
 
 const prisma = new PrismaClient()
@@ -34,21 +35,56 @@ wss.on("connected", (ws)=>{
 
 
       })
-// sndin
+// sending messsage to user 
       ws.send(JSON.stringify({type :"history",messages}))
 
+      // notify others to room 
+      broadcastToRoom(msg.room , {
+        type :"user-joined ",
+        userId :msg.userId
+      })
+} 
 
-      
+
+// sending a message 
+if(msg.type = "message" && currentUser){
+  const saved = await prisma.message.create({
+    data :{
+      room:{connect:{code : currentUser.room}},
+      user:{connect:{id : currentUser.userId}},
+      content :msg.content,
+
+  },
+  include :{user :true },
+
+
+  })
+
+  // broadcats to room 
+  broadcastToRoom (currentUser.room,{
+    type:"message",
+    message :saved 
+
+  })
 
 
 
+// typing indicator 
 
 
-      
-    } catch (error) {
-      
-    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  
+}
 
+catch (error) {
   })
 
 })
