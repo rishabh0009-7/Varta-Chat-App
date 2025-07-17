@@ -70,21 +70,15 @@ if(msg.type = "message" && currentUser){
 
 
 // typing indicator 
+if(msg.type ==="typing " &&  currentUser) {
+  broadcastToRoom(currentUser.room, {
+    type : "typing",
+    userId: currentUser.userId,
 
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-  
 }
 
 catch (error) {
+  console.error("websocket error :", error)
   })
 
 })
