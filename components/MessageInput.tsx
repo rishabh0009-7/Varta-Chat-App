@@ -1,11 +1,11 @@
 import { useState } from "react";
 
 export default function MessageInput({
-  roomCode,
-  userId,
+  onSend,
+  onTyping,
 }: {
-  roomCode: string;
-  userId: string;
+  onSend: (msg: string) => void;
+  onTyping: () => void;
 }) {
   const [message, setMessage] = useState("");
 
