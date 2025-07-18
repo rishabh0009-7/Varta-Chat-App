@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 
 export default function MessageInput({
@@ -13,6 +14,8 @@ export default function MessageInput({
     e.preventDefault();
     if (!message.trim()) return;
     // TODO: send message via WebSocket
+    console.log("Sending message:", message);
+    onSend(message);
     setMessage("");
   };
 

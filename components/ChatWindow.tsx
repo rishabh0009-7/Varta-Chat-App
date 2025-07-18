@@ -1,3 +1,4 @@
+"use client";
 import useChatWebsocket from "@/hooks/useChatWebsocket";
 import MessageInput from "./MessageInput";
 

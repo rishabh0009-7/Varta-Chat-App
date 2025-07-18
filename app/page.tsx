@@ -4,10 +4,20 @@ import Link from "next/link";
 import { useState } from "react";
 import { UserButton, useUser, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const { user } = useUser();
   const [roomCode, setRoomCode] = useState("");
+  const router = useRouter()
+
+
+  function handlejoinroom(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+  
+    if (!roomCode.trim()) return;
+    router.push(`/room/${roomCode.toLowerCase()}`);
+  }
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800">
@@ -27,13 +37,14 @@ export default function HomePage() {
         {user ? (
           <>
             <UserButton />
-            <form className="flex flex-col gap-2 items-center w-full mt-6">
+            <form className="flex flex-col gap-2 items-center w-full mt-6"
+            onSubmit={handlejoinroom}>
               <input
                 type="text"
                 className="w-full rounded-lg px-4 py-2 text-lg bg-black/40 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
                 placeholder="Enter a Room"
                 value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                onChange={(e) => setRoomCode(e.target.value.toLowerCase())}
                 maxLength={8}
                 required
               />
