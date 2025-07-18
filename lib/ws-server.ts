@@ -1,89 +1,97 @@
-import {WebSocket , WebSocketServer} from "ws";
+import { WebSocket, WebSocketServer } from "ws";
 import { PrismaClient } from "@prisma/client";
-import { matchesGlob } from "path";
 
 
-const prisma = new PrismaClient()
-const wss  = new WebSocketServer()
 
-type clientInfo = {
-  ws:WebSocket,
-  userId:string,
-  room :string
+const prisma = new PrismaClient();
+const wss = new WebSocketServer({ port: 3001 }); // Add port here
 
-}
+type ClientInfo = {
+  ws: WebSocket;
+  userId: string;
+  room: string;
+};
 
-const clients : clientInfo[] = []
+const clients: ClientInfo[] = [];
 
-wss.on("connected", (ws)=>{
-  let currentUser = clientInfo | null=null;
-  ws.on("message ",  async(data )=>{
+wss.on("connection", (ws) => {
+  let currentUser: ClientInfo | null = null;
+
+  ws.on("message", async (data) => {
     try {
-      const msg = JSON.parse(data.toString())
-      // joining a room 
-      if(msg == "join"){
-        currentUser = {ws, userId:msg.userId , room :msg.room} 
-        clients.push(currentUser)
+      const msg = JSON.parse(data.toString());
+
+      // Joining a room
+      if (msg.type === "join") {
+        currentUser = { ws, userId: msg.userId, room: msg.room };
+        clients.push(currentUser);
+
+        // Send chat history
+        const messages = await prisma.message.findMany({
+          where: { room: { code: msg.room } },
+          orderBy: { createdAt: "asc" },
+          include: { user: true },
+        });
+
+        ws.send(JSON.stringify({ type: "history", messages }));
+
+        // Notify others in the room
+        broadcastToRoom(msg.room, {
+          type: "user-joined",
+          userId: msg.userId,
+        }, ws);
       }
 
+      // Sending a message
+      if (msg.type === "message" && currentUser) {
+        const saved = await prisma.message.create({
+          data: {
+            room: { connect: { code: currentUser.room } },
+            user: { connect: { id: currentUser.userId } },
+            content: msg.content,
+          },
+          include: { user: true },
+        });
 
-      // send chat history (prev message to user )
-      const messages = await prisma.message.findMany ({
-        where :{room:{code:msg.room}},
-        orderBy:{createdAt: "asc"},
-        inlcude:{user:true}
+        broadcastToRoom(currentUser.room, {
+          type: "message",
+          message: saved,
+        });
+      }
 
+      // Typing indicator
+      if (msg.type === "typing" && currentUser) {
+        broadcastToRoom(currentUser.room, {
+          type: "typing",
+          userId: currentUser.userId,
+        }, ws);
+      }
+    } catch (error) {
+      console.error("WebSocket error:", error);
+    }
+  });
 
-      })
-// sending messsage to user 
-      ws.send(JSON.stringify({type :"history",messages}))
+  ws.on("close", () => {
+    if (currentUser) {
+      // Remove from client list
+      const idx = clients.indexOf(currentUser);
+      if (idx !== -1) clients.splice(idx, 1);
 
-      // notify others to room 
-      broadcastToRoom(msg.room , {
-        type :"user-joined ",
-        userId :msg.userId
-      })
-} 
+      // Notify others
+      broadcastToRoom(currentUser.room, {
+        type: "user-left",
+        userId: currentUser.userId,
+      });
+    }
+  });
+});
 
-
-// sending a message 
-if(msg.type = "message" && currentUser){
-  const saved = await prisma.message.create({
-    data :{
-      room:{connect:{code : currentUser.room}},
-      user:{connect:{id : currentUser.userId}},
-      content :msg.content,
-
-  },
-  include :{user :true },
-
-
-  })
-
-  // broadcats to room 
-  broadcastToRoom (currentUser.room,{
-    type:"message",
-    message :saved 
-
-  })
-
-
-
-// typing indicator 
-if(msg.type ==="typing " &&  currentUser) {
-  broadcastToRoom(currentUser.room, {
-    type : "typing",
-    userId: currentUser.userId,
-
+function broadcastToRoom(room: string, data: any, excludeWs?: WebSocket) {
+  clients
+    .filter((c) => c.room === room && c.ws !== excludeWs)
+    .forEach((c) => {
+      c.ws.send(JSON.stringify(data));
+    });
 }
 
-catch (error) {
-  console.error("websocket error :", error)
-  })
-
-})
-
-
-
-
-
+console.log("WebSocket server running on ws://localhost:3001");
