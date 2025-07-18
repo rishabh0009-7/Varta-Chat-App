@@ -23,7 +23,9 @@ export default function ChatWindow({ roomCode, userId }: ChatWindowProps) {
         ) : (
           messages.map((msg) => (
             <div key={msg.id} className="flex items-center gap-2">
-              <span className="font-bold text-cyan-300">{msg.user.username}:</span>
+              <span className="font-bold text-cyan-300">
+                {msg.user.username}:
+              </span>
               <span className="text-white">{msg.content}</span>
               <span className="text-xs text-gray-400 ml-2">
                 {new Date(msg.createdAt).toLocaleTimeString()}
@@ -42,7 +44,7 @@ export default function ChatWindow({ roomCode, userId }: ChatWindowProps) {
       </div>
 
       <div className="p-4 bg-black/80 rounded-b-lg">
-        <MessageInput onSend={sendMessage} onTyping = {sendTyping} />
+        <MessageInput onSend={sendMessage} onTyping={sendTyping} />
       </div>
     </div>
   );

@@ -62,7 +62,7 @@ export default function useChatWebsocket(roomCode: string, userId: string) {
   }, [roomCode, userId]);
 
   const sendMessage = useCallback((content: string) => {
-    ws.current?.send(JSON.stringify({ type: "message", content }));
+    ws.current?.send(JSON.stringify({ type: "message", content , room :roomCode, userId}));
   }, []);
 
   const sendTyping = useCallback(() => {
